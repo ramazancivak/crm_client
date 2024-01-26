@@ -1,0 +1,53 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.diji-btn{
+    @apply text-white h-12 text-center rounded-md px-3 flex items-center justify-center cursor-pointer;
+}
+.btn-sm{
+    @apply h-6;
+}
+.btn-s{
+    @apply h-8
+}
+.btn-md{
+    @apply h-10;
+}
+.diji-input{
+    @apply block h-12 rounded-[4px] border border-primary w-full px-1;
+}
+.diji-input.disabled{
+    @apply border-zinc-200
+}
+.input-md{
+    @apply h-10
+}
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary) var(--primary);
+  }
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+background: var(--primary);
+border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+background-color: var(--secondary);
+border-radius: 8px;
+}
+:root {
+--primary: #ddd;
+--secondary: #505050;
+}
+input:focus{
+outline: none;
+}
