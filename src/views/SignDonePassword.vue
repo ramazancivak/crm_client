@@ -68,21 +68,21 @@ export default {
         ...mapActions(['setNotify']),
         
         registerDone(){
-                if (this.user.user_name.trim()=='') {
+                if (this.user.user_name=='') {
                     this.setNotify({
                         'desc':"Lütfen kullanıcı adını giriniz",
                         'class':'danger'
                     })
                     return false
                 }
-                if(this.user.password.trim()==null){
+                if(this.user.password==null){
                     this.setNotify({
                         'desc':"Lütfen şifre belirleyiniz",
                         'class':'danger'
                     })
                     return false
                 }
-                if(this.user.password.trim()!=this.user.rePassword.trim()){
+                if(this.user.password!=this.user.rePassword){
                     this.setNotify({
                         'desc':"Şifreler uyuşmuyor",
                         'class':'danger'
@@ -115,7 +115,7 @@ export default {
             const token = this.$route.query.token;
             if (token) {
                 try {
-                const response = await this.$http.get(`/auth/signup?token=${this.$route.query.token}?columns=['id','name','user_name','mail']`);
+                const response = await this.$http.get(`/auth/signup?token=${this.$route.query.token}`);
                     if(response.data.success){
                         this.userInfo = response.data.data; // Düzenleme datası dolduruluyor...
                     }else{
@@ -137,6 +137,7 @@ export default {
                     'desc': "Kullanıcı bulunamadı",
                     'class': 'danger'
                 });
+                this.success= "Kullanıcı bulunamadı"
             }
         },
     },

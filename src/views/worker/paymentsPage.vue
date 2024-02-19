@@ -11,7 +11,7 @@
 import UsersTable from '@/components/ui/CustomTable.vue';
 import LoadingBtn from "@/components/ui/LoadingBtn.vue";
 
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 export default {
     name:'paymentsPage',
     components: {
@@ -42,7 +42,7 @@ export default {
         },
         async getPayments(){
             try {
-                const response = await this.$http.get(`/payment/`);
+                const response = await this.$http.get(`/payment/${userInfo.id}`);
                 if(response.data.success){
                     this.payments = response.data.data; 
                     this.setPaymentsTable();

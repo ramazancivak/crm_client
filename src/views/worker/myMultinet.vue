@@ -105,23 +105,23 @@ export default {
         },
         
         getFoodPrice(month) {
-  const targetDate = this.selectedYear + "-" + month;
-  const targetTimestamp = new Date(targetDate).getTime();
+            const targetDate = this.selectedYear + "-" + month;
+            const targetTimestamp = new Date(targetDate).getTime();
 
-  // Verileri tarihe göre azalan şekilde sırala
-  const sortedData = this.foodPriceList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            // Verileri tarihe göre azalan şekilde sırala
+            const sortedData = this.foodPriceList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // Hedef tarihten küçük veya eşit olan en yakın tarihi bul
-  for (let i = 0; i < sortedData.length; i++) {
-    const currentTimestamp = new Date(sortedData[i].date).getTime();
-    if (currentTimestamp <= targetTimestamp) {
-      return sortedData[i].val; // En yakın tarihin değerini döndür
-    }
-  }
+            // Hedef tarihten küçük veya eşit olan en yakın tarihi bul
+            for (let i = 0; i < sortedData.length; i++) {
+                const currentTimestamp = new Date(sortedData[i].date).getTime();
+                if (currentTimestamp <= targetTimestamp) {
+                return sortedData[i].val; // En yakın tarihin değerini döndür
+                }
+            }
 
-  // Hedef tarihten küçük veya eşit tarih yoksa ilk değeri döndür
-  return sortedData[0].val;
-},
+            // Hedef tarihten küçük veya eşit tarih yoksa ilk değeri döndür
+            return sortedData[0].val;
+        },
         foodAmount(month,index) {
             return this.getFoodPrice(index) * (this.getWorkingDaysInMonth(month) - month.not_working_day);
         },
