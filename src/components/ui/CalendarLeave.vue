@@ -247,7 +247,7 @@ export default {
           this.newLeave.compensationStatus=1
         }
 
-        this.newLeave.title=this.eventTitle(this.newLeave)
+        this.newLeave.title=this.eventTitle(this.newLeave,'details')
 
         if (this.newLeave.type == 2) {
           if (this.$refs.fileInput && this.$refs.fileInput.files) {
@@ -268,7 +268,7 @@ export default {
 
         let calendarApi = this.selectInfo.view.calendar
         
-        await this.$http.post("calender", this.newLeave)
+        await this.$http.post("calendar", this.newLeave)
           .then((response)=>{
             const data = response.data.data
             this.setNotify({
@@ -286,7 +286,7 @@ export default {
             }
             calendarApi.addEvent({
               id: data.id,
-              title:this.eventTitle(data), 
+              title:this.eventTitle(data,'details'), 
               start: start,
               end: end,
               allDay: data.leave_type == 0  ? true : false,
@@ -335,7 +335,7 @@ export default {
             cancelButtonText: 'İptal',
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await this.$http.delete(`calender/${clickInfo.event.id}`);
+                const response = await this.$http.delete(`calendar/${clickInfo.event.id}`);
                 if(response.data.success){
                     if(clickInfo.event.extendedProps.type==3){ //uçuş modu ise fly nesnesi eklensin
                       delete this.$globalVeriable.eventType[2].fly
@@ -355,21 +355,21 @@ export default {
             }
         });
     },
-    async fetchEventsForDateRange(calender) {
+    async fetchEventsForDateRange(calendar) {
       this.$globalVeriable.eventType.forEach(item => {
         delete item.disabled;
         delete item.fly;
       });
       this.calendarOptions.events=[];
-      let activeMount = calender.currentData.dateProfile.activeRange
+      let activeMount = calendar.currentData.dateProfile.activeRange
       try {
         const start = activeMount.start.toISOString();
         const end = activeMount.end.toISOString();
-        let calender = []
-        const response = await this.$http.get(`calender?start=${start}&end=${end}&user_id=0${this.filter_user ? '&user_id='+this.filter_user : ''}`);
-        calender=response.data.data
-        if(calender.length>0){
-          calender.forEach(item => {
+        let calendar = []
+        const response = await this.$http.get(`calendar?start=${start}&end=${end}&user_id=0${this.filter_user ? '&user_id='+this.filter_user : ''}`);
+        calendar=response.data.data
+        if(calendar.length>0){
+          calendar.forEach(item => {
             if(this.calendarOptions.events.find(i => i.id == item.id)==undefined){
               let start=new Date(item.start)
               let end=new Date(item.end)
@@ -403,7 +403,7 @@ export default {
               }
               this.calendarOptions.events.push({
                 id:item.id,
-                title:this.eventTitle(item),
+                title:this.eventTitle(item,'title'),
                 start:start,
                 color:item.type == 0  ? 'red' : item.type == 3  ? 'green' : item.type==1 ? 'default' : 'gray', 
                 end:end,
@@ -420,6 +420,7 @@ export default {
     },
     handleDateSelect(selectInfo) {
 
+
       this.$globalVeriable.eventType.map(item=> !item.fly ? delete item.disabled :'') // tüm type'lar disabled değeri siliniyor. uçuş modu hariç
 
       this.selectInfo=selectInfo;
@@ -430,11 +431,9 @@ export default {
       //burada seçili günde etlinlik kontrolü yapılıyor.
       const currentDate = new Date(this.newLeave.start);
       const end = new Date(this.newLeave.end);
+      
       end.setDate(end.getDate() - 1)
       
-      console.log("currentDate,end")
-      console.log(currentDate,end)
-
       while (currentDate <= end) {
 
         // item.date ile belirli bir tarih aralığını kontrol et
@@ -452,7 +451,6 @@ export default {
           const prevDayExists = this.eventListDate.find(item => isSameDay(this.beforeDay(item.date), currentDate))
           const nextDayExists = this.eventListDate.find(item => isSameDay(this.afterDay(item.date), currentDate))
           var dayExists = prevDayExists || nextDayExists
-          console.log(dayExists)
           if(dayExists){
             if(dayExists.type==3){ //Eğer uçuş modu öncesi veya sonrası ise yıllık izin disabled yapılıyor...
               this.$globalVeriable.eventType[0].disabled=true
@@ -481,6 +479,13 @@ export default {
       // Saat farkı bulunuyor...
       this.newLeave.number_of_days=this.dateDiff(this.newLeave.start,this.newLeave.end,this.newLeave.type)
 
+
+      console.log(this.newLeave.start)
+      if(this.newLeave.number_of_days>1){ // 1 den fazla gün seçili ise uçuş modu pasif et
+        this.$globalVeriable.eventType[2].disabled=true
+      }
+
+
       if(this.newLeave.number_of_days==0){
         this.$swal({
             title: 'Uyarı',
@@ -495,6 +500,7 @@ export default {
 
       let calendarApi = selectInfo.view.calendar
       calendarApi.unselect()
+
     },
     hoursDiff(start,end){
       const date1 = new Date(`1970-01-01T${start}`);
@@ -511,7 +517,7 @@ export default {
         const hourDifference = date2.getHours() - date1.getHours();
 
         return date1.getTime() >= date2.getTime() || hourDifference > 2;
-    }
+    },
   },
   watch:{
     newLeave:{
@@ -552,7 +558,10 @@ export default {
       if(!newValue){
         this.newLeave=this.emptyLeave();
       }
-    }
+    },
+  },
+  created(){
+    
   },
   mounted(){
     const calendar = this.$refs.calendarRef.getApi();
@@ -564,5 +573,6 @@ export default {
   computed:{
     
   }
+  
 }
-</script>
+</script>./CalendarLeav.vue

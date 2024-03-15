@@ -40,11 +40,11 @@
                     <td class="border-r px-2">{{ user.day_off }} Gün</td>
                     <td class="border-r px-2">{{ getUsedDays(user) != 0 ? getUsedDays(user) : "0" }}</td>
                     <td class="border-r px-2">{{ calculateRemainingDays(user)}}</td>
-                    <td class="border-r px-2" v-for="month in months" :key="month">                        
-                        <ul>
-                            <li v-for="event in getUserEvents(user.id, month)" :key="event.id">
+                    <td class="border-r" v-for="month in months" :key="month">                        
+                        <ul class="flex flex-col">
+                            <li v-for="event in getUserEvents(user.id, month)" :key="event.id" :title="getType(event.type, event.leave_type,'name')" class="hover:bg-primary hover:text-white w-full px-1">
                                 <span>
-                                    <i class="mr-1 fas" :class="getTypeIcon(event.type, event.leave_type)"></i><b>{{ formatEventDate(event.start) }} {{  event.number_of_days > 1 ? '- '+formatEventDate(event.end) : '' }}</b>  - {{ eventTitle(event)}}
+                                    <i class="mr-1 fas" :class="getType(event.type, event.leave_type,'icon')"></i><b>{{ formatEventDate(event.start) }} {{  event.number_of_days > 1 ? '- '+formatEventDate(event.end) : '' }}</b>  - {{ eventTitle(event)}}
                                 </span>
                             </li>
                         </ul>
@@ -99,7 +99,7 @@ export default {
         },
         async fetchEventsForDateRange() {
             try {
-            const response = await this.$http.get(`calender?type=1&type=2&type=3&start=${this.selectedYear}-01-01T00:00:00.000Z&end=${this.selectedYear}-12-31T00:00:00.000Z`);
+            const response = await this.$http.get(`calendar?type=1&type=2&type=3&start=${this.selectedYear}-01-01T00:00:00.000Z&end=${this.selectedYear}-12-31T00:00:00.000Z`);
             this.events = response.data.data;
             this.loading = false
             } catch (error) {

@@ -2,6 +2,7 @@ import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import apiInstance from '../axios'
 import router from '@/router';
+
 export default createStore({
   plugins: [createPersistedState()],
   state: {

@@ -14,6 +14,6 @@ export const apiUrl = reactive({
     fixtures: `${process.env.VUE_APP_API_URL}/user/fixtures`,
     customers: `${process.env.VUE_APP_API_URL}/customer/customers`,
 
-    //Calender
-    calender: `${process.env.VUE_APP_API_URL}/calender`
+    //calendar
+    calendar: `${process.env.VUE_APP_API_URL}/calendar`
 });

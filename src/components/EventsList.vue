@@ -49,7 +49,7 @@
       },
       async fetchEventsForDateRange() {
         try {
-          const response = await this.$http.get(`calender?type=1&type=2`);
+          const response = await this.$http.get(`calendar?type=1&type=2`);
           this.events = response.data.data;
         } catch (error) {
           console.error('Etkinlikleri çekerken bir hata oluştu:', error);

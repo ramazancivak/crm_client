@@ -32,7 +32,7 @@
                     <li v-for="child in item.children" :key="child">
                         <router-link :to="child.link" class=" w-full p-2 transition duration-75 rounded-lg pl-6 group flex items-center hover:bg-slate-600 hover:text-white"
                             :class="{ 'bg-slate-600 text-white': $route.href === child.link }">
-                            <i class="fas mr-1 w-[25px] flex justify-center" :class="child.icon"></i> {{child.title}} 
+                            <i class="fas mr-1 w-[25px] flex justify-center" :class="child.icon" v-if="child.icon"></i> {{child.title}} 
                         </router-link>
                     </li>
                 </ul>
@@ -62,7 +62,14 @@ export default {
   },
   methods:{
     menuShow(item){
-        item['show'] = item.show==true ? false : true
+        if (item.children && !item.children.length) {
+            this.fetchCustomersList().then(customers => {
+                item.children = customers;
+                item.show = !item.show;
+            });
+        } else {
+            item.show = !item.show;
+        }
     },
     async changeRole(){
        const userId = this.$store.state.userInfo.id;
@@ -82,16 +89,36 @@ export default {
         }else{
             alert("yetki güncellemede hata")
         }
-    }
+    },
+    async fetchCustomersList() {
+        try {
+            const response = await this.$http.get(`customer/customers?columns=company_name,id`);
+            if (response.data.success) {
+                return response.data.data.map(element => ({
+                    title: element.company_name,
+                    link: '/customers/' + element.id
+                }));
+            }
+        } catch (error) {
+            console.error("An error occurred while fetching customers:", error);
+            return [];
+        }
+    },
   },
   created(){
     const authority = this.$store.state.userInfo.authority
+
     if(authority==0){
         this.menu.push(
             {
                 title:'Anasayfa',
                 link:'/',
                 icon:'fa-home'
+            },
+            {
+                title:'InBox',
+                link:'/inbox',
+                icon:'fa-envelope'
             },
             {
                 title:'Çalışanlar',
@@ -124,6 +151,12 @@ export default {
                         icon:'fa-hand-holding-dollar'
                     },
                 ]
+            },
+            {
+                title:'Müşteriler',
+                link:'',
+                icon:'fa-users',
+                children:[]
             },
             {
                 title:'Demirbaşlar',
@@ -160,7 +193,7 @@ export default {
             },
             {
                 title:'İzinlerim',
-                link:'/my-calender',
+                link:'/my-calendar',
                 icon:'fa-calendar-days'
             },
             {

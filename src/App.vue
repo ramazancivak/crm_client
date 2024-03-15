@@ -9,7 +9,6 @@
 <script>
 
 import NotifyComponent from '@/components/layout/NotifyComponent.vue';
-import { mapState } from 'vuex';
 export default {
   name: 'App',
   components : {
@@ -23,7 +22,6 @@ export default {
   methods:{
   },
   computed:{
-    ...mapState(['token']),
     notifyList() {
       return this.$store.state.notifyList;
     },

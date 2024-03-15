@@ -1,5 +1,6 @@
 <template>
     <div>        
+
         <div class="w-full flex items-center mb-2 justify-between border-b pb-2">
             <div class="flex gap-3 items-center">
                 <h1 class="py-2 text-md font-bold">İZİNLER</h1>
@@ -31,7 +32,7 @@
                                 <ul>
                                     <li v-for="event in getTypeEvents(eventList, month)" :key="event.id">
                                         <span>
-                                            <i class="mr-1 fas" :class="getTypeIcon(event.type, event.leave_type)"></i><b>{{ formatEventDate(event.start) }} {{  event.number_of_days > 1 ? '- '+formatEventDate(event.end) : '' }}</b>  - {{ eventTitle(event)}}
+                                            <i class="mr-1 fas" :class="getType(event.type, event.leave_type,'icon')" :title="getType(event.type, event.leave_type,'name')"></i><b>{{ formatEventDate(event.start) }} {{  event.number_of_days > 1 ? '- '+formatEventDate(event.end) : '' }}</b>  - {{ eventTitle(event)}}
                                         </span>
                                     </li>
                                 </ul>
@@ -142,7 +143,7 @@
                     </svg>
                 </div>
                 <div class="mt-4">
-                    <CalenderLeave @changeList="fetchEventsForDateRange()" :filter_user="userId" class="w-full mt-5" />
+                    <CalendarLeave @changeList="fetchEventsForDateRange()" :filter_user="userId" class="w-full mt-5" />
                 </div>
                 </div>
             </div>
@@ -156,12 +157,12 @@
 <script>
 
 import { mapActions } from 'vuex'
-import CalenderLeave from '@/components/ui/CalenderLeave.vue'
+import CalendarLeave from '@/components/ui/CalendarLeave.vue'
 import CustomButton from '@/components/ui/CustomButton.vue'
 export default {
-    name:'myCalender',
+    name:'myCalendar',
     components: {
-        CalenderLeave,
+        CalendarLeave,
         CustomButton
     },
     data(){
@@ -176,7 +177,7 @@ export default {
                 totalHours: 0,
             },
             compensationList:[],
-            compensationDone:[]
+            compensationDone:[],
         }
     },
     methods:{
@@ -191,7 +192,7 @@ export default {
                 ...event,
                 compensationStatus:2 //burada 2 olarak güncelleniyor ve kayıt veritabanında kalmaya devam ediyor...
             }
-            const response = await this.$http.put(`calender/${event.id}`,event) 
+            const response = await this.$http.put(`calendar/${event.id}`,event) 
             if(response.data.success){
                 this.setNotify({
                     'desc':response.data.message.text,
@@ -239,7 +240,7 @@ export default {
                 totalHours: 0
             }
             try {
-                const response = await this.$http.get(`calender?type=1&type=2&type=3&user_id=${this.userId}&start=${this.selectedYear}-01-01T00:00:00.000Z&end=${this.selectedYear}-12-31T00:00:00.000Z`);
+                const response = await this.$http.get(`calendar?type=1&type=2&type=3&user_id=${this.userId}&start=${this.selectedYear}-01-01T00:00:00.000Z&end=${this.selectedYear}-12-31T00:00:00.000Z`);
                 const eventList = response.data.data;
 
                 this.compensationDone = eventList.filter((event) => {
@@ -288,7 +289,7 @@ export default {
             return text
         },
         async compensationControl() {
-            const response = await this.$http.post("calender/compensation") 
+            const response = await this.$http.post("calendar/compensation") 
             return response
         },
         counterDate(){
@@ -298,10 +299,7 @@ export default {
                 eventDate.setDate(eventDate.getDate() + 2)
                 event.counterDate=this.calculateDateDifference(startDate, eventDate);
             })
-            console.log("this.compensationList")
-            console.log(this.compensationList)
-        }
-
+        },
     },
     mounted(){
         setInterval(() => {

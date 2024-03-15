@@ -9,11 +9,12 @@ import NotPermission from '../views/NotPermission.vue';
 //admin sayfaları
 import executiveLayout from '../components/layout/executive/executiveLayout.vue';
 import HomePage from '../views/executive/HomePage.vue';
+import InBox from '../views/executive/InBox.vue';
 import UsersList from '../views/executive/users/UsersList.vue';
 import UsersDetails from '../views/executive/users/UsersDetails.vue';
 import DepartmansPage from "../views/executive/DepartmansPage.vue";
 import FixturesPage from "../views/executive/FixturesPage.vue";
-import EventsCalender from "../views/executive/EventsCalender.vue";
+import EventsCalendar from "../views/executive/EventsCalendar.vue";
 import MultinetPage from "../views/executive/MultinetPage.vue";
 import PaymentsPage from "../views/executive/PaymentsPage.vue";
 import SettingsPage from "../views/executive/SettingsPage.vue";
@@ -24,7 +25,7 @@ import workHomePage from '../views/worker/HomePage.vue';
 import profilePage from '../views/worker/profilePage.vue';
 import myPayments from '../views/worker/myPayments.vue';
 import myFixtures from '../views/worker/myFixtures.vue';
-import myCalender from '../views/worker/myCalender.vue';
+import myCalendar from '../views/worker/myCalendar.vue';
 import myMultinet from '../views/worker/myMultinet.vue';
 
 
@@ -71,6 +72,12 @@ const router = createRouter({
           exact: true,
         },
         {
+          path: 'inbox',
+          name: 'InBox',
+          component: InBox,
+          exact: true,
+        },
+        {
           path: 'users',
           name: 'UsersList',
           component: UsersList,
@@ -92,8 +99,8 @@ const router = createRouter({
         },
         {
           path: 'events',
-          name: 'EventsCalender',
-          component: EventsCalender,
+          name: 'EventsCalendar',
+          component: EventsCalendar,
         },
         {
           path: 'multinet',
@@ -139,9 +146,9 @@ const router = createRouter({
           component: myFixtures,
         },
         {
-          path: 'my-calender',
-          name: 'myCalender',
-          component: myCalender,
+          path: 'my-calendar',
+          name: 'myCalendar',
+          component: myCalendar,
         },
         {
           path: 'my-multinet',

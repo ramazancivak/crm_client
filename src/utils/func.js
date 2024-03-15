@@ -12,7 +12,7 @@ export default {
       return `${day} ${month} ${year}`;
     },   
   
-    eventTitle(event){
+    eventTitle(event,details){
       var title=''
       if(event.type==1){
           if(event.leave_type==1){
@@ -23,13 +23,20 @@ export default {
               }
           }else if(event.leave_type==2){
               title += ` ${event.hours} Saat`
+          }else if(event.leave_type==0){
+            title += ` ${event.number_of_days} Gün` 
           }
+      }else if(event.type==2){
+        title += ` ${event.number_of_days} Gün` 
       }else if(event.type==3){
           title += this.$globalVeriable.eventType[event.type-1].name
       }
 
-      if(event.leave_type==0 && event.type!=3){
-          title += ` ${event.number_of_days} Gün`
+      if(event.type==0){
+          title += ` ${event.title}` 
+      }
+      if(event.type!=0 && details && event.type!=3){
+        title=title+' '+this.$globalVeriable.eventType[event.type-1].name
       }
       return title
     },
@@ -37,11 +44,13 @@ export default {
       var time = new Date(date)
       return time.setDate(time.getDate() - 1)
     },
-    getTypeIcon(type,leave_type){
-      if(leave_type>0){
-        return this.$globalVeriable.eventTypeList.find(item=>item.leave_type==leave_type).icon
-      }else{
-        return this.$globalVeriable.eventTypeList.find(item=>item.type==type && item.leave_type==leave_type).icon
+    getType(type, leave_type, val) {
+      if (leave_type > 0) {
+          const leaveTypeItem = this.$globalVeriable.eventTypeList.find(item => item.leave_type === leave_type);
+          return leaveTypeItem ? leaveTypeItem[val] : null;
+      } else {
+          const eventTypeItem = this.$globalVeriable.eventTypeList.find(item => item.type === type && item.leave_type === leave_type);
+          return eventTypeItem ? eventTypeItem[val] : null;
       }
     },
     afterDay(date){

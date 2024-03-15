@@ -1,7 +1,8 @@
 <template>
   <div class="h-[65px]">
       <div class="flex justify-between items-center">
-        <div class="duyuru"><b>Bugün ne var? :</b>9 Ocak Sezgin Külcü'nün doğum günü!</div>
+        
+        <NotifyCalendar />
         <div class="flex gap-3 items-center">
             <div class="search relative">
                 <input type="text" class="rounded-full h-12 shadow-stone-500 indent-3 w-64 shadow-inner bg-slate-200 focus:border-blue-200" name="search" placeholder="Ara">
@@ -40,10 +41,14 @@
 </template>
 
 <script>
+import NotifyCalendar from '@/components/NotifyCalendar.vue';
 import { mapState } from 'vuex'
 
 export default {
   name: 'HeaderT',
+  components:{
+    NotifyCalendar
+  },
   computed:{
     ...mapState(['userInfo'])
   },

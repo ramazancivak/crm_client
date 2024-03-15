@@ -19,6 +19,9 @@
             <div v-if="$route.params.id==1">
                 <FoodPrice />
             </div>
+            <div v-if="$route.params.id==2">
+                <SetHoliday />
+            </div>
         </div>
     </div>
 </template>
@@ -27,11 +30,13 @@
 
 import CustomButton from '@/components/ui/CustomButton.vue';
 import FoodPrice from '@/components/settings/FoodPrice.vue';
+import SetHoliday from '@/components/settings/SetHoliday.vue';
 
 export default {
     components:{
         CustomButton,
-        FoodPrice
+        FoodPrice,
+        SetHoliday
     },
     data(){
         return{
@@ -41,6 +46,12 @@ export default {
                     link:'/1',
                     icon:'fa-sack-dollar',
                     color:'bg-yellow-500'
+                },
+                {
+                    title:'Resmi Tatilleri Güncelle',
+                    link:'/2',
+                    icon:'fa-sun',
+                    color:'bg-green-500'
                 },
             ]
         }
