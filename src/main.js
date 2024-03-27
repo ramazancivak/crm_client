@@ -40,7 +40,7 @@ function resetTimer() {
   clearTimeout(timer);
   timer = setTimeout(() => {
     router.push('/logout');
-  }, 10 * 60 * 6000);
+  }, 60 * 60 * 6000);
 }
 
 document.addEventListener('mousemove', resetTimer);

@@ -6,11 +6,14 @@
                 class="h-10"
                 :slides-per-view="1"
                 :direction="'vertical'"
-                :autoplay="{ delay: 3000 }"
+                :autoplay="{ 'delay': 3000 }"
                 :loop="true"
             >
                 <swiper-slide class="duyuru flex items-center" v-for="event in notifyList" :key="event.id">
-                    <p v-if="event.type==1">{{event.user_name}} izinli</p>
+                    <p v-if="event.type==1">{{event.user_name}} izinli
+                        <sup v-if="event.leave_type==1">Yarım Gün - {{ event.half_type==0 ? 'Öğleden Önce' : 'Öğleden Sonra' }}</sup>
+                        <sup v-if="event.leave_type==2">Saatlik - {{ hoursDiff(event.start,event.end) }}</sup>
+                    </p>
                     <p v-if="event.type==2">{{event.user_name}} raporlu</p>
                     <p v-if="event.type==3">{{event.user_name}} uçuşta</p>
                     <p v-if="event.type==4">{{event.user_name}} doğum günü!</p>
@@ -40,18 +43,28 @@ export default {
     data() {
         return {
             notifyList: [],
-            nowDate: new Date().toISOString().split('T')[0],
+            nowDate: new Date().toISOString(),
         }
     },
     methods: {
         getCalendar() {
-            this.$http.get(`/calendar/whatstoday?start=${this.nowDate}T00:00:00.000Z`).then((response) => {
+            this.$http.get(`/calendar/whatstoday?start=${this.nowDate}`).then((response) => {
                 // Verileri notifyList'e atayın
                 this.notifyList = response.data.data;
             }).catch((error) => {
                 console.error('Takvim verilerini alırken hata oluştu:', error);
             });
-        }
+        },
+        
+        hoursDiff(start,end){
+        const date1 = new Date(start);
+        const date2 = new Date(end);
+        const timeDiff = date2.getTime() - date1.getTime();
+        const hoursDiff = timeDiff / (1000 * 3600);
+        
+        return hoursDiff + ' Saat';
+        },
+        
     },
     created() {
         // Sayfa oluşturulduğunda takvim verilerini al

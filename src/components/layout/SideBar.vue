@@ -159,6 +159,11 @@ export default {
                 children:[]
             },
             {
+                title:'Takvim',
+                link:'/calendar',
+                icon:'fa-calendar-days'
+            },
+            {
                 title:'Demirbaşlar',
                 link:'/fixtures',
                 icon:'fa-hands-praying'
@@ -172,7 +177,7 @@ export default {
                 title:'Ayarlar',
                 link:'/settings',
                 icon:'fa-gear'
-            }
+            },
         )
     }else if(authority==1){
         this.menu.push(
@@ -193,7 +198,12 @@ export default {
             },
             {
                 title:'İzinlerim',
-                link:'/my-calendar',
+                link:'/my-events',
+                icon:'fa-list'
+            },
+            {
+                title:'Takvim',
+                link:'/calendar',
                 icon:'fa-calendar-days'
             },
             {

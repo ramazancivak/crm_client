@@ -57,7 +57,7 @@ export default {
     methods:{
         ...mapActions(['setNotify','fetchFixtures','fetchUsers']),
         updateTableBody(){
-            this.tableBody=this.fixtures.map((item) => [item.delivery_date, item.name, item.model, item.seri_no, item.user, item.id])
+            this.tableBody=this.fixtures.map((item) => [item.delivery_date, item.name, item.model, item.seri_no, item.user_data, item.id])
         },
         
         actionFixture(id=null) {

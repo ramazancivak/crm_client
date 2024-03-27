@@ -6,16 +6,7 @@
     <div class="flex justify-center">
       <div
         v-if="modalOpen"
-        class="
-          fixed
-          inset-0
-          z-10
-          flex
-          items-center
-          justify-center
-          bg-gray-700 bg-opacity-50
-        "
-      >
+        class="fixed inset-0 z-10 flex items-center justify-center bg-gray-700 bg-opacity-50">
         <div class="max-w-2xl w-96 p-6 bg-white rounded-md shadow-xl">
           <div class="flex items-center justify-between">
             <h4 class="text-md">{{ formatDate(newLeave.start) }} - {{ formatDate(beforeDay(newLeave.end))  }} ({{ newLeave.number_of_days }} Gün) </h4>
@@ -39,9 +30,6 @@
             <div class="mb-4 text-sm grid gap-3">
               <div class="group">
                 <label for="title" class="block mb-1 text-sm w-100">İzin Türü: </label>
-                <!-- <select v-model="newLeave.type" id="leave_type" class="diji-input input-md" required>
-                  <option :value="event.id" v-for="event in $globalVeriable.eventType" :disabled="event.disabled" class="disabled:bg-gray-500 disabled:text-white" :key="event.id">{{ event.name }}</option>
-                </select> -->
                 <div class="grid gap-2 grid-cols-3">
                   <button @click="newLeave.type=event.id" v-for="event in $globalVeriable.eventType" :disabled="event.disabled" :class="{'bg-blue-600 text-white' : newLeave.type==event.id}" class="border border-zinc p-1 rounded-sm disabled:bg-gray-500 disabled:text-white" :key="event.id">{{ event.name }}</button>
                 </div>  
@@ -124,6 +112,7 @@
     </div>
   </div>
 </template>
+
 <script>
 //Takvim ile ilgili
 import FullCalendar from '@fullcalendar/vue3'
@@ -138,11 +127,10 @@ export default {
   components: {
     FullCalendar // make the <FullCalendar> tag available
   },
-  props:[
-    'filter_user'
-  ],
   data() {
     return {
+      
+      userId:this.$store.getters.authority==0 ? undefined : this.$store.state.userInfo.id,
       calendarOptions: {
         editable: true,
         selectable: true,
@@ -155,7 +143,7 @@ export default {
           timeGridPlugin
         ],
         // hiddenDays: [0, 6],
-        select: this.handleDateSelect,
+        select: this.$store.getters.authority==1 ? this.handleDateSelect : '', //sadece çalışanlar izin girebilecek
         eventClick: this.deleteLeave,
         eventsSet: this.handleEvents,
         initialView: 'dayGridMonth',
@@ -163,20 +151,25 @@ export default {
         timeZone: 'local',
         events: [
         ],
-        eventContent: function (arg) {
-          if(!arg.event.allDay){
-            const startTime = arg.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const endTime = arg.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            return {
-              html: `<div class="event-title fc-daygrid-event" style="background-color:#ddd"> ${startTime}-${endTime} ${arg.event.title}</div>`,
-              display: 'block',
-            };
-          }else{
-            return {
-              html: `<div class="event-title"> ${arg.event.title}</div>`,
-              display: 'block',
-            };
-          }
+        eventContent: function(arg) {
+          console.log(arg.event)
+          const startTime = arg.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const endTime = arg.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          /* Burada alpine kullanılarak tooltip yaptım. tooltipte kullanıcı adı görünecek */
+          const eventContent = `
+            <div class="event-content" x-data="{ open: false }" @mouseover="open = true" @mouseleave="open = false">
+              ${arg.event.title}${!arg.event.allDay ? ` - <b>${startTime} - ${endTime}</b>` : ''}
+              ${arg.event.extendedProps.user_data!=null ? `<div class="tooltip absolute z-10 bg-gray-800 text-white px-2 py-1 rounded shadow" x-show="open">
+                ${arg.event.extendedProps.user_data.name}
+              </div>` : ''}
+            </div>
+          `;
+
+        return {
+          html: eventContent,
+          display: 'block',
+        };
         },
         headerToolbar: {
           left: 'prev,next today',
@@ -205,7 +198,8 @@ export default {
         '17:30',
         '18:30'
       ],
-      eventListDate:[]
+      eventListDate:[],
+      calendar : null
     }
   },
   methods: {
@@ -291,14 +285,16 @@ export default {
               end: end,
               allDay: data.leave_type == 0  ? true : false,
               extendedProps:{
-                type:data.type
+                type:data.type,
+                user_data:data.user_data ? data.user_data : null
               },
-              color:data.type == 0  ? 'red' : data.type==1 ? 'default' : 'gray', 
+              color:data.type == 0  ? 'red' : data.type == 3  ? 'green' : data.type==1 ? 'default' : 'gray', 
+
             })
-            this.$emit('changeList');
             this.selectInfo=null
             this.newLeave=this.emptyLeave();
             this.modalOpen=false
+            this.fetchEventsForDateRange();
           }).catch((error)=>{
             this.setNotify({
               'desc': error,
@@ -345,7 +341,6 @@ export default {
                     'desc': response.data.message.text,
                     'class': 'success'
                     });
-                    this.$emit('changeList');
                 }else{
                     this.setNotify({
                     'desc': response.data.message.text,
@@ -355,18 +350,19 @@ export default {
             }
         });
     },
-    async fetchEventsForDateRange(calendar) {
+    async fetchEventsForDateRange() {
+      
       this.$globalVeriable.eventType.forEach(item => {
         delete item.disabled;
         delete item.fly;
       });
       this.calendarOptions.events=[];
-      let activeMount = calendar.currentData.dateProfile.activeRange
+      let activeMount = this.calendar.currentData.dateProfile.activeRange
       try {
         const start = activeMount.start.toISOString();
         const end = activeMount.end.toISOString();
         let calendar = []
-        const response = await this.$http.get(`calendar?start=${start}&end=${end}&user_id=0${this.filter_user ? '&user_id='+this.filter_user : ''}`);
+        const response = await this.$http.get(`calendar?start=${start}&end=${end}${this.userId ? '&user_id=0&user_id='+this.userId : ''}`);
         calendar=response.data.data
         if(calendar.length>0){
           calendar.forEach(item => {
@@ -403,12 +399,13 @@ export default {
               }
               this.calendarOptions.events.push({
                 id:item.id,
-                title:this.eventTitle(item,'title'),
+                title:this.eventTitle(item,'details'),
                 start:start,
                 color:item.type == 0  ? 'red' : item.type == 3  ? 'green' : item.type==1 ? 'default' : 'gray', 
                 end:end,
                 extendedProps:{
-                  type:item.type
+                  type:item.type,
+                  user_data:item.user_data ? item.user_data : null
                 }
               })
             }
@@ -420,14 +417,13 @@ export default {
     },
     handleDateSelect(selectInfo) {
 
-
       this.$globalVeriable.eventType.map(item=> !item.fly ? delete item.disabled :'') // tüm type'lar disabled değeri siliniyor. uçuş modu hariç
 
       this.selectInfo=selectInfo;
 
       this.newLeave.start=this.selectInfo.startStr
       this.newLeave.end=this.selectInfo.endStr
-
+      
       //burada seçili günde etlinlik kontrolü yapılıyor.
       const currentDate = new Date(this.newLeave.start);
       const end = new Date(this.newLeave.end);
@@ -475,16 +471,11 @@ export default {
               d1.getDate() === d2.getDate()
           );
       }
-      
-      // Saat farkı bulunuyor...
+      // Gün farkı bulunuyor...
       this.newLeave.number_of_days=this.dateDiff(this.newLeave.start,this.newLeave.end,this.newLeave.type)
-
-
-      console.log(this.newLeave.start)
-      if(this.newLeave.number_of_days>1){ // 1 den fazla gün seçili ise uçuş modu pasif et
+      if(this.newLeave.number_of_days>1 || new Date(this.newLeave.start).getDay()=='5' || new Date(this.newLeave.start).getDay()=='1'){ // 1 den fazla gün seçili ise uçuş modu pasif et
         this.$globalVeriable.eventType[2].disabled=true
       }
-
 
       if(this.newLeave.number_of_days==0){
         this.$swal({
@@ -552,7 +543,7 @@ export default {
         this.newLeave.leave_type=0
       }
       this.newLeave.number_of_days=this.dateDiff(this.newLeave.start,this.newLeave.end,newValue)
-     },
+    },
 
     modalOpen(newValue){
       if(!newValue){
@@ -561,13 +552,12 @@ export default {
     },
   },
   created(){
-    
   },
   mounted(){
-    const calendar = this.$refs.calendarRef.getApi();
-    this.fetchEventsForDateRange(calendar);
-    calendar.on('datesSet', () => {
-      this.fetchEventsForDateRange(calendar);
+    this.calendar = this.$refs.calendarRef.getApi()
+    this.fetchEventsForDateRange();
+    this.calendar.on('datesSet', () => {
+      this.fetchEventsForDateRange();
     });
   },
   computed:{
@@ -575,4 +565,4 @@ export default {
   }
   
 }
-</script>./CalendarLeav.vue
+</script>

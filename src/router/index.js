@@ -25,7 +25,8 @@ import workHomePage from '../views/worker/HomePage.vue';
 import profilePage from '../views/worker/profilePage.vue';
 import myPayments from '../views/worker/myPayments.vue';
 import myFixtures from '../views/worker/myFixtures.vue';
-import myCalendar from '../views/worker/myCalendar.vue';
+import myEvents from '../views/worker/myEvents.vue';
+import CalendarPage from '../views/CalendarPage.vue';
 import myMultinet from '../views/worker/myMultinet.vue';
 
 
@@ -58,6 +59,18 @@ const router = createRouter({
       path: '/forgot-password',
       name: 'FargotPassword',
       component: SignDonePassword,
+    },
+    {
+      path: '/calendar',
+      component: executiveLayout,
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          name: 'CalendarPage',
+          component: CalendarPage,
+        },
+      ]
     },
     {
       path: '/',
@@ -146,15 +159,15 @@ const router = createRouter({
           component: myFixtures,
         },
         {
-          path: 'my-calendar',
-          name: 'myCalendar',
-          component: myCalendar,
+          path: 'my-events',
+          name: 'myEvents',
+          component: myEvents,
         },
         {
           path: 'my-multinet',
           name: 'myMultinet',
           component: myMultinet,
-        },
+        }
       ],
     },
   ],

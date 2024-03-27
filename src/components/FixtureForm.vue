@@ -38,7 +38,6 @@
             <div class="w-1/2">
                 <DatePicker
                 v-model="formData.delivery_date"
-                :format="formatOptions"
                 class="diji-input" ></DatePicker>
             </div>
         </div>
@@ -59,7 +58,6 @@
             <div class="w-1/2">
                 <DatePicker
                 v-model="formData.return_date"
-                :format="formatOptions"
                 class="diji-input" ></DatePicker>
             </div>
         </div>
@@ -91,12 +89,20 @@ export default {
         async saveFixture(){
 
             let response=[];
-            if(Object.prototype.hasOwnProperty.call(this.formData, 'id')){
-                response = await this.$http.put(`${this.$apiUrl.fixtures}/${this.formData.id}`, this.formData);
+            
+            let data = {
+                ...this.formData,
+                'delivery_date':this.singleDate(this.formData.delivery_date),
+                'return_date':this.singleDate(this.formData.return_date)
+            }
+
+            if(Object.prototype.hasOwnProperty.call(data, 'id')){
+                response = await this.$http.put(`${this.$apiUrl.fixtures}/${this.formData.id}`, data);
             }else{
-                response = await this.$http.post(`${this.$apiUrl.fixtures}`, this.formData);
+                response = await this.$http.post(`${this.$apiUrl.fixtures}`, data);
             }
             if(response.data.success){
+                this.$emit('closePopup')
                 this.formData=response.data.data
                 this.$emit('updateFixture', this.formData);
                 this.setNotify({

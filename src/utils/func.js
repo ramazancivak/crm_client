@@ -1,3 +1,5 @@
+
+import moment from 'moment';
 export default {
   methods: {
     formatDate(val) {
@@ -110,6 +112,10 @@ export default {
 
         return dayCount;
     },
+    
+    singleDate(date) {
+        return moment(date).format('YYYY-MM-DD');
+    }
   },
   
   computed:{

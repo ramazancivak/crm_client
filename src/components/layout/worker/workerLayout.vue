@@ -11,7 +11,7 @@
   </template>
   <script>
   import SideBar from "../SideBar.vue";
-  import HeaderFixed from "./HeaderFixed.vue";
+  import HeaderFixed from "../HeaderFixed.vue";
 
   export default {
     name: 'workerLayout',

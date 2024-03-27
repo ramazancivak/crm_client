@@ -48,9 +48,8 @@
                         
                         <DatePicker
                         v-model="formData.birthday"
-                        :format="formatOptions"
                         class="diji-input" ></DatePicker>
-
+                        {{ formattedBirthday }}
                     </div>
                     <div class="group">
                         <label for="marital_status" class="block mb-1 text-sm w-100">Medeni Hali {{ formData.marital_status }}</label>
@@ -115,13 +114,12 @@
                     </div>
                     <div class="group">
                         <label for="tc" class="block mb-1 text-sm w-100">IBAN Bilgisi </label>
-                        <input type="text" id="tc" v-model="formData.bank_iban" v-mask="'   ## #### #### #### #### #### ##'" placeholder="TR## #### #### #### #### #### ##"  class="diji-input">
+                        <input type="text" id="tc" v-model="formData.bank_iban" v-mask="'## #### #### #### #### #### ##'" placeholder="TR## #### #### #### #### #### ##"  class="diji-input">
                     </div>
                     <div class="group">
                         <label for="date_of_start" class="block mb-1 text-sm w-100">İşe Başlama Tarihi</label>
                         <DatePicker
                         v-model="formData.date_of_start"
-                        :format="formatOptions"
                         class="diji-input" ></DatePicker>
                     </div>
                     <div class="group">
@@ -255,19 +253,35 @@ export default {
       fixtures: [],
       requiredd:['name','mail','departman_id','phone','tc_identity','user_name','password'],
       ilList:iller,
+      datePickerFormat: 'YYYY-MM-DD'
     };
   },
   methods: {
         
         ...mapActions(['setNotify']),
-
+        handleDateInput(date) {
+            alert("test")
+            // Datepicker'dan gelen tarih değerini YYYY-MM-DD biçimine dönüştür
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            this.formData.birthday = `${year}-${month}-${day}`;
+        },
         async handleSubmit(event) {
             if (event) {
                 event.preventDefault();
             }
+            let changedData = this.getChangedData(this.originalData, this.formData);
+
+            changedData.birthday  = this.singleDate(this.formData.birthday)            
+            changedData.date_of_start  = this.singleDate(this.formData.date_of_start)         
+            changedData.date_of_start_2  = this.singleDate(this.formData.date_of_start_2)           
+            changedData.date_of_end  = this.singleDate(this.formData.date_of_end)         
+            
             if(this.isNew){ // Yeni Kayıt çalışan için...
+
                 this.errorField('clear') // Hata inputları temizlenecek
-                const response = await this.$http.post(`${this.$apiUrl.users}`,this.formData);
+                const response = await this.$http.post(`${this.$apiUrl.users}`,changedData);
                 if(response.data.success){
                     this.formData = response.data.data
                     this.editData()
@@ -290,7 +304,7 @@ export default {
                 }
             }else{ //Düzenleme penceresi için
                 this.formData.salaries=JSON.stringify(this.maaslar)
-                const changedData = this.getChangedData(this.originalData, this.formData);
+
                 if (Object.keys(changedData).length === 0) { //Eğer değişiklik yapılmdayısa
                     this.setNotify({
                         'desc': 'Herhangi bir değişiklik yapılmadı.',
@@ -320,7 +334,6 @@ export default {
         },
         async reSend(){
             const response = await this.$http.post(`sendEmail/welcome`,this.formData);
-            
             if(response.data.success){
                 this.setNotify({
                 'desc': response.data.message.text,
@@ -390,7 +403,7 @@ export default {
                 this.fixtures = this.formData.fixtures
             }
             if(this.formData.birthday){
-                this.formData.birthday = new Date(this.formData.birthday); 
+                this.formData.birthday = new Date(this.formData.birthday)
             }
 
             if(this.formData.date_of_start){
@@ -422,9 +435,6 @@ export default {
         }
     },
     computed: {
-        testra() {
-            return "DD-MM-YYYY";
-        },
     },
 };
 </script>
